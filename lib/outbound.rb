@@ -2,7 +2,7 @@ require 'logger'
 
 module Outbound
   VERSION = '0.1.0'
-  BASE_URL = 'http://api.ob-dev.com:9000'
+  BASE_URL = 'https://api.outbound.io/v2'
 
   ERROR_USER_ID = "User ID must be a string or number."
   ERROR_EVENT_NAME = "Event name must be a string."
