@@ -2,7 +2,7 @@
 
 ## Install
 ### Simple
-    gem install outbound-ruby
+    gem install outbound
 
 ### Bundler
     gem 'outbound', '~> 0.1.0', :require => 'outbound'
@@ -17,7 +17,7 @@
 
     require 'outbound'
     user_info = {
-        :first_name => "FirstName"
+        :first_name => "FirstName",
         :last_name => "LastName",
         :email => "username@domain.com",
         :phone_number => "5551234567",
