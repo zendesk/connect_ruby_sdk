@@ -1,7 +1,10 @@
 require 'logger'
+require 'json'
+require 'net/http'
+require 'uri'
 
 module Outbound
-  VERSION = '0.1.0'
+  VERSION = '0.2.1'
   BASE_URL = 'https://api.outbound.io/v2'
 
   ERROR_USER_ID = "User ID must be a string or number."
@@ -146,9 +149,12 @@ module Outbound
         headers = HEADERS
         headers['X-Outbound-Key'] = api_key
         payload = JSON.generate data
-        request = Net::HTTP::Post.new("#{BASE_URL}#{path}", headers)
+        uri = URI("#{BASE_URL}#{path}")
 
-        res = @http.request(request, payload)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = uri.scheme == 'https'
+        res = http.post(uri.path, payload, headers)
+
         status = res.code.to_i
       rescue Exception => e
         res = Result.new Outbound::ERROR_CONNECTION, false
