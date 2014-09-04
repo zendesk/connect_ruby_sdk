@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 
 module Outbound
-  VERSION = '0.2.1'
+  VERSION = '0.2.2'
   BASE_URL = 'https://api.outbound.io/v2'
 
   ERROR_USER_ID = "User ID must be a string or number."
@@ -20,8 +20,7 @@ module Outbound
   module Defaults
     HEADERS = {
       'Content-type' => 'application/json',
-      'X-Outbound-Client' => 'ruby',
-      'X-Outbound-Client-Version' => Outbound::VERSION,
+      'X-Outbound-Client' => 'Ruby/' + Outbound::VERSION,
     }
   end
 
