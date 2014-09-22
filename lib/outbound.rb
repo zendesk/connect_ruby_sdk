@@ -5,8 +5,7 @@ require 'uri'
 
 module Outbound
   VERSION = '0.3'
-  # BASE_URL = 'https://api.outbound.io/v2'
-  BASE_URL = 'http://api.ob-dev.com/v2'
+  BASE_URL = 'https://api.outbound.io/v2'
 
   APNS = "apns"
   GCM = "gcm"
