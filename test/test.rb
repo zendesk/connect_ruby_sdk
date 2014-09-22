@@ -19,4 +19,26 @@ class TestOutbound < Test::Unit::TestCase
     result = Outbound.track "user id", ["event"]
     assert result.event_name_error?, "Expected event name error in track call."
   end
+
+  def test_revoke
+    result = Outbound.revoke Outbound::APNS, [1,2], "token"
+    assert result.user_id_error?, "Expected user ID error in revoke call."
+
+    result = Outbound.revoke "SOMETHING", "user_id", "token"
+    assert result.platform_error?, "Expected platform error in revoke call."
+
+    result = Outbound.revoke Outbound::APNS, "user id", ["event"]
+    assert result.token_error?, "Expected token error in revoke call."
+  end
+
+  def test_register
+    result = Outbound.register Outbound::APNS, [1,2], "token"
+    assert result.user_id_error?, "Expected user ID error in register call."
+
+    result = Outbound.register "SOMETHING", "user_id", "token"
+    assert result.platform_error?, "Expected platform error in register call."
+
+    result = Outbound.register Outbound::APNS, "user id", ["event"]
+    assert result.token_error?, "Expected token error in register call."
+  end
 end

@@ -4,13 +4,19 @@ require 'net/http'
 require 'uri'
 
 module Outbound
-  VERSION = '0.2.2'
-  BASE_URL = 'https://api.outbound.io/v2'
+  VERSION = '0.3'
+  # BASE_URL = 'https://api.outbound.io/v2'
+  BASE_URL = 'http://api.ob-dev.com/v2'
+
+  APNS = "apns"
+  GCM = "gcm"
 
   ERROR_USER_ID = "User ID must be a string or number."
   ERROR_EVENT_NAME = "Event name must be a string."
   ERROR_CONNECTION = "Outbound connection error"
   ERROR_INIT = "Must call init() before identify() or track()."
+  ERROR_TOKEN = "Token must be a string."
+  ERROR_PLATFORM = "Unsupported platform specified."
 
   @ob = nil
   @logger = Logger.new $stdout
@@ -48,6 +54,24 @@ module Outbound
     return @ob.track user_id, event, properties, user_info, user_attributes
   end
 
+  def Outbound.revoke platform, user_id, token
+    if @ob == nil
+      res = Result.new Outbound::ERROR_INIT, false
+      @logger.error res.error
+      return res
+    end
+    return @ob.revoke platform, user_id, token
+  end
+
+  def Outbound.register platform, user_id, token
+    if @ob == nil
+      res = Result.new Outbound::ERROR_INIT, false
+      @logger.error res.error
+      return res
+    end
+    return @ob.register platform, user_id, token
+  end
+
   class Result
     include Defaults
 
@@ -77,6 +101,14 @@ module Outbound
 
     def init_error?
       return @error == Outbound::ERROR_INIT
+    end
+
+    def token_error?
+      return @error == Outbound::ERROR_TOKEN
+    end
+
+    def platform_error?
+      return @error == Outbound::ERROR_PLATFORM
     end
   end
 
@@ -139,6 +171,50 @@ module Outbound
       end
 
       return post(@api_key, '/track', data)
+    end
+
+    def revoke platform, user_id, token
+      unless user_id.is_a? String or user_id.is_a? Numeric
+        res = Result.new Outbound::ERROR_USER_ID, false
+        @logger.error res.error
+        return res
+      end
+
+      unless token.is_a? String
+        res = Result.new Outbound::ERROR_TOKEN, false
+        @logger.error res.error
+        return res
+      end
+
+      unless [Outbound::APNS, Outbound::GCM].include? platform
+        res = Result.new Outbound::ERROR_PLATFORM, false
+        @logger.error res.error
+        return res
+      end
+
+      return post(@api_key, "/#{platform}/revoke", {:token => token, :user_id => user_id})
+    end
+
+    def register platform, user_id, token
+      unless user_id.is_a? String or user_id.is_a? Numeric
+        res = Result.new Outbound::ERROR_USER_ID, false
+        @logger.error res.error
+        return res
+      end
+
+      unless token.is_a? String
+        res = Result.new Outbound::ERROR_TOKEN, false
+        @logger.error res.error
+        return res
+      end
+
+      unless [Outbound::APNS, Outbound::GCM].include? platform
+        res = Result.new Outbound::ERROR_PLATFORM, false
+        @logger.error res.error
+        return res
+      end
+
+      return post(@api_key, "/#{platform}/register", {:token => token, :user_id => user_id})
     end
 
     private
