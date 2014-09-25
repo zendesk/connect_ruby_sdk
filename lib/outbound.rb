@@ -53,13 +53,13 @@ module Outbound
     return @ob.track user_id, event, properties, user_info, user_attributes
   end
 
-  def Outbound.revoke platform, user_id, token
+  def Outbound.disable platform, user_id, token
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-    return @ob.revoke platform, user_id, token
+    return @ob.disable platform, user_id, token
   end
 
   def Outbound.register platform, user_id, token
@@ -172,7 +172,7 @@ module Outbound
       return post(@api_key, '/track', data)
     end
 
-    def revoke platform, user_id, token
+    def disable platform, user_id, token
       unless user_id.is_a? String or user_id.is_a? Numeric
         res = Result.new Outbound::ERROR_USER_ID, false
         @logger.error res.error
@@ -191,7 +191,7 @@ module Outbound
         return res
       end
 
-      return post(@api_key, "/#{platform}/revoke", {:token => token, :user_id => user_id})
+      return post(@api_key, "/#{platform}/disable", {:token => token, :user_id => user_id})
     end
 
     def register platform, user_id, token

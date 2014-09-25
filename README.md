@@ -48,16 +48,16 @@ You can register device tokens for push notification by sending them in the `ide
     # To register a token for Google Cloud Messaging (Android)
     Outbound.register Outbound.GCM, "USER_ID", "DEVICE_TOKEN_HERE"
 
-## Revoke a device token
-You can also revoke a previously registered device tokens.
+## Disable a device token
+You can also disable a previously registered device tokens.
 
     require 'outbound'
 
-    # To revoke a token for Apple Push Notification Service (iOS)
-    Outbound.revoke Outbound.APNS, "USER_ID", "DEVICE_TOKEN_HERE"
+    # To disable a token for Apple Push Notification Service (iOS)
+    Outbound.disable Outbound.APNS, "USER_ID", "DEVICE_TOKEN_HERE"
 
-    # To revoke a token for Google Cloud Messaging (Android)
-    Outbound.revoke Outbound.GCM, "USER_ID", "DEVICE_TOKEN_HERE"
+    # To disable a token for Google Cloud Messaging (Android)
+    Outbound.disable Outbound.GCM, "USER_ID", "DEVICE_TOKEN_HERE"
 
 ## Specifics
 ### User ID
@@ -69,7 +69,7 @@ You can also revoke a previously registered device tokens.
 - Event names can be anything you want them to be (as long as they are strings) and contain any character you want.
 
 ### Device Tokens
-- If you send a device token through an `identify` call, that is equivalent to sending a `register` call. Regardless of the state of that token it will become active again and we will attempt to send notifications to it. It is recommended that if you use the `register` and `revoke` calls that you DO NOT send any tokens in `identify` calls. This way you can more easily control the state of your tokens.
+- If you send a device token through an `identify` call, that is equivalent to sending a `register` call. Regardless of the state of that token it will become active again and we will attempt to send notifications to it. It is recommended that if you use the `register` and `disable` calls that you DO NOT send any tokens in `identify` calls. This way you can more easily control the state of your tokens.
 
 ### Results
 - Both the `identify` and `track` methods return a `Outbound::Result` instance. It has `error` and `received_call` attributes that are accesible. `received_call` is a boolean that indicates if the http request was even made. `error` will be either `nil` or a string error message. There is also a `success?` method that returns true if the call went through to Outbound and did not have any errors. There are also `?` method available for each different error type.
