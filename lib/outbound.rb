@@ -253,8 +253,8 @@ module Outbound
         :last_name => info[:last_name],
         :email => info[:email],
         :phone_number => info[:phone_number],
-        :apns_tokens => info[:apns_tokens],
-        :gcm_tokens => info[:gcm_tokens],
+        :apns => info[:apns_tokens],
+        :gcm => info[:gcm_tokens],
         :attributes => attributes,
       }
       return user.delete_if { |k, v| v.nil? || v.empty? }
