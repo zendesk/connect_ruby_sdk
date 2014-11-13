@@ -238,7 +238,8 @@ module Outbound
 
       err = nil
       if status < 200 or status >= 400
-        err = "#{status} - #{res.body}" if res.response_body_permitted? else nil
+        err = "#{status}"
+        err << " - #{res.body}" unless res.body.empty?
       end
       return err, true
     end
