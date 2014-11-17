@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 
 module Outbound
-  VERSION = '0.3.1'
+  VERSION = '0.3.2'
   BASE_URL = 'https://api.outbound.io/v2'
 
   APNS = "apns"
