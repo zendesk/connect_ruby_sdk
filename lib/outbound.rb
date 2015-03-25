@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 
 module Outbound
-  VERSION = '0.3.2'
+  VERSION = '0.4.0'
   BASE_URL = 'https://api.outbound.io/v2'
 
   APNS = "apns"
@@ -256,6 +256,9 @@ module Outbound
         :phone_number => info[:phone_number],
         :apns => info[:apns_tokens],
         :gcm => info[:gcm_tokens],
+        :group_id => info[:group_id],
+        :group_attributes => info[:group_attributes],
+        :previous_id => info[:previous_id],
         :attributes => attributes,
       }
       return user.delete_if { |k, v| v.nil? || v.empty? }
