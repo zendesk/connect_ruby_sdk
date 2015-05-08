@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 
 module Outbound
-  VERSION = '0.4.0'
+  VERSION = '1.0.0'
   BASE_URL = 'https://api.outbound.io/v2'
 
   APNS = "apns"
@@ -34,23 +34,22 @@ module Outbound
     @ob = Outbound::Client.new api_key, @logger
   end
 
-  def Outbound.identify user_id, info={}, attributes={}
+  def Outbound.identify user_id, info={}
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-
-    return @ob.identify user_id, info, attributes
+    return @ob.identify user_id, info
   end
 
-  def Outbound.track user_id, event, properties={}, user_info={}, user_attributes={}
+  def Outbound.track user_id, event, properties={}, user_info={}
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-    return @ob.track user_id, event, properties, user_info, user_attributes
+    return @ob.track user_id, event, properties, user_info
   end
 
   def Outbound.disable platform, user_id, token
@@ -119,7 +118,7 @@ module Outbound
       @logger = logger
     end
 
-    def identify user_id, info={}, attributes={}
+    def identify user_id, info={}
       unless user_id.is_a? String or user_id.is_a? Numeric
         res = Result.new Outbound::ERROR_USER_ID, false
         @logger.error res.error
@@ -128,7 +127,7 @@ module Outbound
 
       user_data = {:user_id => user_id}
       begin
-        user = user(info, attributes)
+        user = user(info)
         user_data = user_data.merge user
       rescue
         @logger.error "Could not use user info (#{info}) and/or user attributes #{attributes} given to identify call."
@@ -137,7 +136,7 @@ module Outbound
       return post(@api_key, '/identify', user_data)
     end
 
-    def track user_id, event, properties={}, user_info={}, user_attributes={}
+    def track user_id, event, properties={}, user_info={}, timestamp
       unless user_id.is_a? String or user_id.is_a? Numeric
         res = Result.new Outbound::ERROR_USER_ID, false
         @logger.error res.error
@@ -153,7 +152,7 @@ module Outbound
       data = {:user_id => user_id, :event => event}
 
       begin
-        user = user(user_info, user_attributes)
+        user = user(user_info)
         if user.length > 0
           data[:user] = user
         end
@@ -167,6 +166,12 @@ module Outbound
         end
       else
         @logger.error "Could not use event properties (#{properties}) given to track call."
+      end
+
+      if timestamp == nil
+        data[:timestamp] = timestamp
+      else
+        data[:timestamp] = Time.now.to_i
       end
 
       return post(@api_key, '/track', data)
@@ -244,8 +249,8 @@ module Outbound
       return err, true
     end
 
-    def user info={}, attributes={}
-      unless info.is_a? Hash and attributes.is_a? Hash
+    def user info={}
+      unless info.is_a? Hash
         raise
       end
 
@@ -259,9 +264,10 @@ module Outbound
         :group_id => info[:group_id],
         :group_attributes => info[:group_attributes],
         :previous_id => info[:previous_id],
-        :attributes => attributes,
+        :attributes => info[:attributes],
       }
       return user.delete_if { |k, v| v.nil? || v.empty? }
     end
+
   end
 end
