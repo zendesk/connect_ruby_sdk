@@ -43,13 +43,13 @@ module Outbound
     return @ob.identify user_id, info
   end
 
-  def Outbound.track user_id, event, properties={}, user_info={}
+  def Outbound.track user_id, event, properties={}, user_info={}, timestamp
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-    return @ob.track user_id, event, properties, user_info
+    return @ob.track user_id, event, properties, user_info, timestamp
   end
 
   def Outbound.disable platform, user_id, token
