@@ -16,6 +16,7 @@ module Outbound
   ERROR_INIT = "Must call init() before identify() or track()."
   ERROR_TOKEN = "Token must be a string."
   ERROR_PLATFORM = "Unsupported platform specified."
+  ERROR_CAMPAIGN_IDS = "At least one campaign ID is required."
 
   @ob = nil
   @logger = Logger.new $stdout
@@ -70,6 +71,24 @@ module Outbound
     return @ob.register(platform, user_id, token)
   end
 
+  def Outbound.unsubscribe user_id, all=false, campaign_ids=nil
+    if @ob == nil
+      res = Result.new Outbound::ERROR_INIT, false
+      @logger.error res.error
+      return res
+    end
+    return @ob.subscription user_id, true, all, campaign_ids
+  end
+
+  def Outbound.subscribe user_id, all=false, campaign_ids=nil
+    if @ob == nil
+      res = Result.new Outbound::ERROR_INIT, false
+      @logger.error res.error
+      return res
+    end
+    return @ob.subscription user_id, false, all, campaign_ids
+  end
+
   class Result
     include Defaults
 
@@ -107,6 +126,10 @@ module Outbound
 
     def platform_error?
       return @error == Outbound::ERROR_PLATFORM
+    end
+
+    def campaign_id_error?
+      return @error == Outbound::ERROR_CAMPAIGN_IDS
     end
   end
 
@@ -207,6 +230,29 @@ module Outbound
       end
 
       return post(@api_key, "/#{platform}/register", {:token => token, :user_id => user_id})
+    end
+
+    def subscription user_id, unsubscribe=false, all=false, campaign_ids=nil
+      unless user_id.is_a? String or user_id.is_a? Numeric
+        res = Result.new Outbound::ERROR_USER_ID, false
+        @logger.error res.error
+        return res
+      end
+
+      if !all
+        unless !campaign_ids.nil? && campaign_ids.is_a?(Array) && campaign_ids.length > 0
+          res = Result.new Outbound::ERROR_CAMPAIGN_IDS, false
+          @logger.error res.error
+          return res
+        end
+      end
+
+      url = '/' + (unsubscribe ? 'unsubscribe' : 'subscribe') + '/' + (all ? 'all' : 'campaigns')
+      data = {:user_id => user_id}
+      if !all
+        data[:campaign_ids] = campaign_ids
+      end
+      return post(@api_key, url, data)
     end
 
     private
