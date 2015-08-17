@@ -168,15 +168,11 @@ module Outbound
         @logger.error "Could not use event properties (#{properties}) given to track call."
       end
 
-      puts timestamp
-
       unless timestamp == {}
         data[:timestamp] = timestamp
       else
         data[:timestamp] = Time.now.to_i
       end
-
-      puts data[:timestamp]
 
       return post(@api_key, '/track', data)
     end
