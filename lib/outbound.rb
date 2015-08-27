@@ -43,13 +43,13 @@ module Outbound
     return @ob.identify user_id, info
   end
 
-  def Outbound.track user_id, event, properties={}, user_info={}, timestamp
+  def Outbound.track user_id, event, properties={}, timestamp=nil
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-    return @ob.track user_id, event, properties, user_info, timestamp
+    return @ob.track user_id, event, properties, timestamp
   end
 
   def Outbound.disable platform, user_id, token
@@ -151,15 +151,6 @@ module Outbound
 
       data = {:user_id => user_id, :event => event}
 
-      begin
-        user = user(user_info)
-        if user.length > 0
-          data[:user] = user
-        end
-      rescue
-        @logger.error "Could not use user info (#{user_info}) and/or user attributes #{user_attributes} given to track call."
-      end
-
       if properties.is_a? Hash
         if properties.length > 0
           data[:properties] = properties
@@ -168,7 +159,7 @@ module Outbound
         @logger.error "Could not use event properties (#{properties}) given to track call."
       end
 
-      unless timestamp == {}
+      unless timestamp == nil
         data[:timestamp] = timestamp
       else
         data[:timestamp] = Time.now.to_i
