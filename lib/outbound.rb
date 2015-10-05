@@ -29,51 +29,51 @@ module Outbound
     }
   end
 
-  def Outbound.init api_key, log_level=Logger::ERROR
+  def Outbound.init(api_key, log_level=Logger::ERROR)
     @logger.level = log_level
     @ob = Outbound::Client.new api_key, @logger
   end
 
-  def Outbound.identify user_id, info={}
+  def Outbound.identify(user_id, info={})
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-    return @ob.identify user_id, info
+    return @ob.identify(user_id, info)
   end
 
-  def Outbound.track user_id, event, properties={}, user_info={}, timestamp
+  def Outbound.track(user_id, event, properties={}, timestamp=Time.now.to_i)
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-    return @ob.track user_id, event, properties, user_info, timestamp
+    return @ob.track(user_id, event, properties, timestamp)
   end
 
-  def Outbound.disable platform, user_id, token
+  def Outbound.disable(platform, user_id, token)
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-    return @ob.disable platform, user_id, token
+    return @ob.disable(platform, user_id, token)
   end
 
-  def Outbound.register platform, user_id, token
+  def Outbound.register(platform, user_id, token)
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
       return res
     end
-    return @ob.register platform, user_id, token
+    return @ob.register(platform, user_id, token)
   end
 
   class Result
     include Defaults
 
-    def initialize error, received_call
+    def initialize(error, received_call)
       @error = error
       @received_call = received_call
     end
@@ -113,12 +113,12 @@ module Outbound
   class Client
     include Defaults
 
-    def initialize api_key, logger
+    def initialize(api_key, logger)
       @api_key = api_key
       @logger = logger
     end
 
-    def identify user_id, info={}
+    def identify(user_id, info={})
       unless user_id.is_a? String or user_id.is_a? Numeric
         res = Result.new Outbound::ERROR_USER_ID, false
         @logger.error res.error
@@ -136,7 +136,7 @@ module Outbound
       return post(@api_key, '/identify', user_data)
     end
 
-    def track user_id, event, properties={}, user_info={}, timestamp
+    def track(user_id, event, properties={}, user_info={}, timestamp=Time.now.to_i)
       unless user_id.is_a? String or user_id.is_a? Numeric
         res = Result.new Outbound::ERROR_USER_ID, false
         @logger.error res.error
@@ -151,15 +151,6 @@ module Outbound
 
       data = {:user_id => user_id, :event => event}
 
-      begin
-        user = user(user_info)
-        if user.length > 0
-          data[:user] = user
-        end
-      rescue
-        @logger.error "Could not use user info (#{user_info}) and/or user attributes #{user_attributes} given to track call."
-      end
-
       if properties.is_a? Hash
         if properties.length > 0
           data[:properties] = properties
@@ -168,20 +159,13 @@ module Outbound
         @logger.error "Could not use event properties (#{properties}) given to track call."
       end
 
+      data[:timestamp] = timestamp
       puts timestamp
-
-      unless timestamp == {}
-        data[:timestamp] = timestamp
-      else
-        data[:timestamp] = Time.now.to_i
-      end
-
-      puts data[:timestamp]
 
       return post(@api_key, '/track', data)
     end
 
-    def disable platform, user_id, token
+    def disable(platform, user_id, token)
       unless user_id.is_a? String or user_id.is_a? Numeric
         res = Result.new Outbound::ERROR_USER_ID, false
         @logger.error res.error
@@ -203,7 +187,7 @@ module Outbound
       return post(@api_key, "/#{platform}/disable", {:token => token, :user_id => user_id})
     end
 
-    def register platform, user_id, token
+    def register(platform, user_id, token)
       unless user_id.is_a? String or user_id.is_a? Numeric
         res = Result.new Outbound::ERROR_USER_ID, false
         @logger.error res.error
@@ -227,7 +211,7 @@ module Outbound
 
     private
 
-    def post api_key, path, data
+    def post(api_key, path, data)
       begin
         headers = HEADERS
         headers['X-Outbound-Key'] = api_key
@@ -253,7 +237,7 @@ module Outbound
       return err, true
     end
 
-    def user info={}
+    def user(info={})
       unless info.is_a? Hash
         raise
       end
