@@ -43,7 +43,7 @@ module Outbound
     return @ob.identify(user_id, info)
   end
 
-  def Outbound.track(user_id, event, properties={}, timestamp=nil)
+  def Outbound.track(user_id, event, properties={}, timestamp=Time.now.to_i)
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
       @logger.error res.error
@@ -136,7 +136,7 @@ module Outbound
       return post(@api_key, '/identify', user_data)
     end
 
-    def track(user_id, event, properties={}, user_info={}, timestamp)
+    def track(user_id, event, properties={}, user_info={}, timestamp=Time.now.to_i)
       unless user_id.is_a? String or user_id.is_a? Numeric
         res = Result.new Outbound::ERROR_USER_ID, false
         @logger.error res.error
@@ -159,11 +159,8 @@ module Outbound
         @logger.error "Could not use event properties (#{properties}) given to track call."
       end
 
-      unless timestamp == nil
-        data[:timestamp] = timestamp
-      else
-        data[:timestamp] = Time.now.to_i
-      end
+      data[:timestamp] = timestamp
+      puts timestamp
 
       return post(@api_key, '/track', data)
     end
