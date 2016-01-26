@@ -3,7 +3,7 @@ require File.expand_path('../lib/outbound', __FILE__)
 Gem::Specification.new do |s|
   s.name        = 'outbound'
   s.version     = Outbound::VERSION
-  s.date        = '2014-06-07'
+  s.date        = Date.today.to_s
   s.summary     = "Outbound sends automated email, SMS, phone calls and push notifications based on the actions users take (or do not take) in your app."
   s.description = "Outbound sends automated email, SMS, phone calls and push notifications based on the actions users take or do not take in your app. The Outbound API has two components:
 
