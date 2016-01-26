@@ -62,6 +62,15 @@ module Outbound
     return @ob.disable(platform, user_id, token)
   end
 
+  def Outbound.disable_all(platform, user_id)
+    if @ob == nil
+      res = Result.new Outbound::ERROR_INIT, false
+      @logger.error res.error
+      return res
+    end
+    return @ob.disable_all(platform, user_id)
+  end
+
   def Outbound.register(platform, user_id, token)
     if @ob == nil
       res = Result.new Outbound::ERROR_INIT, false
@@ -208,6 +217,22 @@ module Outbound
       end
 
       return post(@api_key, "/#{platform}/disable", {:token => token, :user_id => user_id})
+    end
+
+    def disable_all(platform, user_id)
+      unless user_id.is_a? String or user_id.is_a? Numeric
+        res = Result.new Outbound::ERROR_USER_ID, false
+        @logger.error res.error
+        return res
+      end
+
+      unless [Outbound::APNS, Outbound::GCM].include? platform
+        res = Result.new Outbound::ERROR_PLATFORM, false
+        @logger.error res.error
+        return res
+      end
+
+      return post(@api_key, "/#{platform}/disable", {:all => true, :user_id => user_id})
     end
 
     def register(platform, user_id, token)
