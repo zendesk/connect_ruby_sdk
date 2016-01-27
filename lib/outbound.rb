@@ -11,6 +11,7 @@ module Outbound
   GCM = "gcm"
 
   ERROR_USER_ID = "User ID must be a string or number."
+  ERROR_PREVIOUS_ID = "Previous ID must be a string or number."
   ERROR_EVENT_NAME = "Event name must be a string."
   ERROR_CONNECTION = "Outbound connection error"
   ERROR_INIT = "Must call init() before identify() or track()."
@@ -33,6 +34,15 @@ module Outbound
   def Outbound.init(api_key, log_level=Logger::ERROR)
     @logger.level = log_level
     @ob = Outbound::Client.new api_key, @logger
+  end
+
+  def Outbound.alias(user_id, previous_id)
+    if @ob == nil
+      res = Result.new Outbound::ERROR_INIT, false
+      @logger.error res.error
+      return res
+    end
+    return @ob.identify(user_id, previous_id)
   end
 
   def Outbound.identify(user_id, info={})
@@ -148,6 +158,23 @@ module Outbound
     def initialize(api_key, logger)
       @api_key = api_key
       @logger = logger
+    end
+
+    def alias(user_id, previous_id)
+      unless user_id.is_a? String or user_id.is_a? Numeric
+        res = Result.new Outbound::ERROR_USER_ID, false
+        @logger.error res.error
+        return res
+      end
+
+      unless previous_id.is_a? String or previous_id.is_a? Numeric
+        res = Result.new Outbound::ERROR_PREVIOUS_ID, false
+        @logger.error res.error
+        return res
+      end
+
+      user_data = {:user_id => user_id, :previous_id => previous_id}
+      return post(@api_key, '/identify', user_data)
     end
 
     def identify(user_id, info={})
