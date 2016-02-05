@@ -332,7 +332,7 @@ module Outbound
         err = "#{status}"
         err << " - #{res.body}" unless res.body.empty?
       end
-      return err, true
+      return Result.new err, true
     end
 
     def user(info={})
