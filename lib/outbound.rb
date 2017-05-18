@@ -31,9 +31,9 @@ module Outbound
     }.freeze
   end
 
-  def self.init(api_key, log_level = Logger::ERROR)
+  def self.init(api_key, log_level = Logger::ERROR, base_url: BASE_URL)
     @logger.level = log_level
-    @ob = Outbound::Client.new api_key, @logger
+    @ob = Outbound::Client.new api_key, @logger, base_url: base_url
   end
 
   def self.alias(user_id, previous_id)
@@ -155,9 +155,10 @@ module Outbound
   class Client
     include Defaults
 
-    def initialize(api_key, logger)
+    def initialize(api_key, logger, base_url: base_url)
       @api_key = api_key
       @logger = logger
+      @base_url = base_url
     end
 
     def alias(user_id, previous_id)
