@@ -217,7 +217,6 @@ module Outbound
       end
 
       data[:timestamp] = timestamp
-      puts timestamp
 
       post(@api_key, '/track', data)
     end
